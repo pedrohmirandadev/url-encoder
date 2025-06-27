@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import 'dotenv/config';
 import { AppDataSource } from './database/typeorm.config';
 import { HealthModule } from './health-checker/health.module';
-import { UrlenconderModule } from './urlenconder/urlenconder.module';
 import { AppService } from './app.service';
+import { UrlModule } from './url/url.module';
 
 @Module({
     imports: [
@@ -14,8 +14,8 @@ import { AppService } from './app.service';
             ...AppDataSource.options,
             autoLoadEntities: true,
         }),
-        UrlenconderModule,
         HealthModule,
+        UrlModule,
     ],
     controllers: [AppController],
     providers: [AppService],
