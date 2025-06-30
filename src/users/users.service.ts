@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    Injectable,
+    NotFoundException,
+    InternalServerErrorException,
+    Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entities/users.entity';
@@ -7,67 +12,110 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+    private readonly logger = new Logger(UsersService.name);
+
     constructor(
         @InjectRepository(Users)
         private userRepository: Repository<Users>,
     ) { }
 
-    async create(createUserDto: CreateUserDto) {
+    async create(createUserDto: CreateUserDto): Promise<Users> {
         try {
             const user = this.userRepository.create(createUserDto);
-            await this.userRepository.save(user);
-            return user;
+            return await this.userRepository.save(user);
         } catch (error) {
-            console.log(error);
-            throw error;
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+            this.logger.error('Erro ao criar usuário', message);
+            throw new InternalServerErrorException('Erro ao criar o usuário');
         }
     }
 
-    async findAll() {
+    async findAll(): Promise<Users[]> {
         try {
             return await this.userRepository.find();
         } catch (error) {
-            console.log(error);
-            throw error;
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+            this.logger.error('Erro ao buscar usuários', message);
+            throw new InternalServerErrorException(
+                'Erro ao buscar os usuários',
+            );
         }
     }
 
     async findByEmail(email: string): Promise<Users | null> {
-        return await this.userRepository.findOneBy({ email });
-    }
-
-    async findById(id: number) {
         try {
-            return await this.userRepository.findOneBy({ id });
+            return await this.userRepository.findOneBy({ email });
         } catch (error) {
-            console.log(error);
-            throw error;
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+            this.logger.error(
+                `Erro ao buscar usuário com email: ${email}`,
+                message,
+            );
+            throw new InternalServerErrorException(
+                'Erro ao buscar o usuário pelo e-mail',
+            );
         }
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
+    async findById(id: number): Promise<Users> {
         try {
             const user = await this.userRepository.findOneBy({ id });
             if (!user) {
-                throw new NotFoundException('Usuário não encontrado');
+                throw new NotFoundException('Usuário não encontrado');
             }
-            user.name = updateUserDto.name as string;
-            user.email = updateUserDto.email as string;
-            user.password = updateUserDto.password as string;
-
-            return await this.userRepository.save(user);
+            return user;
         } catch (error) {
-            console.log(error);
-            throw error;
+            if (error instanceof NotFoundException) throw error;
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+
+            this.logger.error(`Erro ao buscar usuário com ID: ${id}`, message);
+            throw new InternalServerErrorException('Erro ao buscar o usuário');
         }
     }
 
-    async remove(id: number) {
+    async update(id: number, updateUserDto: UpdateUserDto): Promise<Users> {
         try {
-            return await this.userRepository.softDelete(id);
+            const user = await this.userRepository.findOneBy({ id });
+            if (!user) {
+                throw new NotFoundException('Usuário não encontrado');
+            }
+
+            Object.assign(user, updateUserDto);
+            return await this.userRepository.save(user);
         } catch (error) {
-            console.log(error);
-            throw error;
+            if (error instanceof NotFoundException) throw error;
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+
+            this.logger.error(
+                `Erro ao atualizar usuário com ID: ${id}`,
+                message,
+            );
+            throw new InternalServerErrorException(
+                'Erro ao atualizar o usuário',
+            );
+        }
+    }
+
+    async remove(id: number): Promise<void> {
+        try {
+            const result = await this.userRepository.softDelete(id);
+            if (result.affected === 0) {
+                throw new NotFoundException(
+                    'Usuário não encontrado para remoção',
+                );
+            }
+        } catch (error) {
+            if (error instanceof NotFoundException) throw error;
+
+            const message =
+                error instanceof Error ? error.stack : JSON.stringify(error);
+            this.logger.error(`Erro ao remover usuário com ID: ${id}`, message);
+            throw new InternalServerErrorException('Erro ao remover o usuário');
         }
     }
 }
