@@ -13,12 +13,13 @@ export class UrlService {
         private urlRepository: Repository<Urls>,
     ) { }
 
-    async create(createUrlDto: CreateUrlDto) {
+    async create(createUrlDto: CreateUrlDto, user_id?: number) {
         try {
             const code = randomBytes(3).toString('hex');
             const url = this.urlRepository.create({
                 ...createUrlDto,
                 code,
+                user: { id: user_id },
             });
             await this.urlRepository.save(url);
             return {

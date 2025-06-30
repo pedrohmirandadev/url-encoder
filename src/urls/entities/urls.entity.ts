@@ -1,8 +1,11 @@
+import { Users } from 'src/users/entities/users.entity';
 import {
     Column,
     CreateDateColumn,
     DeleteDateColumn,
     Entity,
+    JoinColumn,
+    ManyToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
@@ -20,6 +23,10 @@ export class Urls {
 
     @Column({ default: 0 })
     visit_quantity: number;
+
+    @ManyToOne(() => Users, (user) => user.urls)
+    @JoinColumn({ name: 'user_id' })
+    user: Users;
 
     @CreateDateColumn()
     created_at: Date;
