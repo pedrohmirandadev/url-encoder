@@ -2,20 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Url } from './entities/url.entity';
+import { Urls } from './entities/urls.entity';
 import { Repository } from 'typeorm';
 import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UrlService {
     constructor(
-        @InjectRepository(Url)
-        private urlRepository: Repository<Url>,
-    ) {}
+        @InjectRepository(Urls)
+        private urlRepository: Repository<Urls>,
+    ) { }
 
     async create(createUrlDto: CreateUrlDto) {
         try {
-            const code = randomBytes(4).toString('hex');
+            const code = randomBytes(3).toString('hex');
             const url = this.urlRepository.create({
                 ...createUrlDto,
                 code,
@@ -40,7 +40,13 @@ export class UrlService {
     }
 
     async findByCode(code: string) {
-        return await this.urlRepository.findOneBy({ code });
+        const url = await this.urlRepository.findOneBy({ code });
+        if (!url) {
+            return null;
+        }
+        url.visit_quantity++;
+        await this.urlRepository.save(url);
+        return url;
     }
 
     async update(id: number, updateUrlDto: UpdateUrlDto) {

@@ -8,22 +8,25 @@ import {
     Delete,
     Res,
     NotFoundException,
+    UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { UrlService } from './url.service';
+import { UrlService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller()
 export class UrlController {
-    constructor(private readonly urlService: UrlService) {}
+    constructor(private readonly urlService: UrlService) { }
 
-    @Post('url')
+    @Post('urls')
     create(@Body() createUrlDto: CreateUrlDto) {
         return this.urlService.create(createUrlDto);
     }
 
-    @Get('url')
+    @UseGuards(AuthGuard)
+    @Get('urls')
     findAll() {
         return this.urlService.findAll();
     }
@@ -35,12 +38,14 @@ export class UrlController {
         return res.redirect(url.url);
     }
 
-    @Patch('url/:id')
+    @UseGuards(AuthGuard)
+    @Patch('urls/:id')
     update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto) {
         return this.urlService.update(+id, updateUrlDto);
     }
 
-    @Delete('url/:id')
+    @UseGuards(AuthGuard)
+    @Delete('urls/:id')
     remove(@Param('id') id: string) {
         return this.urlService.remove(+id);
     }
