@@ -6,7 +6,9 @@ import 'dotenv/config';
 import { AppDataSource } from './database/typeorm.config';
 import { HealthModule } from './health-checker/health.module';
 import { AppService } from './app.service';
-import { UrlModule } from './url/url.module';
+import { UrlModule } from './urls/urls.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
     imports: [
@@ -16,8 +18,10 @@ import { UrlModule } from './url/url.module';
         }),
         HealthModule,
         UrlModule,
+        AuthModule,
+        UsersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
