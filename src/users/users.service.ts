@@ -36,6 +36,15 @@ export class UsersService {
         return await this.userRepository.findOneBy({ email });
     }
 
+    async findById(id: number) {
+        try {
+            return await this.userRepository.findOneBy({ id });
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
     async update(id: number, updateUserDto: UpdateUserDto) {
         try {
             const user = await this.userRepository.findOneBy({ id });
