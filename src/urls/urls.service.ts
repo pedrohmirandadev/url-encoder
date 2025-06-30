@@ -31,6 +31,19 @@ export class UrlService {
         }
     }
 
+    async findManyByUser(user_id: number) {
+        try {
+            return await this.urlRepository.find({
+                where: {
+                    user: { id: user_id },
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
     async findAll() {
         try {
             return await this.urlRepository.find();

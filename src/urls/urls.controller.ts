@@ -36,8 +36,8 @@ export class UrlController {
 
     @UseGuards(AuthGuard)
     @Get('urls')
-    findAll() {
-        return this.urlService.findAll();
+    findAll(@Req() req: Request & { user?: { id: number } }) {
+        return this.urlService.findManyByUser(req.user!.id);
     }
 
     @Get(':code')
