@@ -9,7 +9,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('Url Encoder')
         .setDescription('')
-        .setVersion('0.1')
+        .setVersion('0.4')
         .addTag('encoder')
         .build();
     const documentFactory = () => SwaggerModule.createDocument(app, config);
