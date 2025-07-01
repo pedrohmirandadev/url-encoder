@@ -1,7 +1,19 @@
-import { Controller, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Put,
+    Param,
+    Delete,
+    UseGuards,
+    Req,
+    ForbiddenException,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user-dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { AuthenticatedRequest } from 'src/auth/auth.controller';
 
 @Controller('users')
 export class UsersController {
@@ -13,12 +25,28 @@ export class UsersController {
     }
 
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(+id, updateUserDto);
+    @UseGuards(AuthGuard)
+    update(
+        @Param('id') id: number,
+        @Body() updateUserDto: UpdateUserDto,
+        @Req() req: AuthenticatedRequest,
+    ) {
+        if (req.user!.id !== id) {
+            throw new ForbiddenException(
+                'You are not authorized to update this user',
+            );
+        }
+        return this.usersService.update(id, updateUserDto);
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.usersService.remove(+id);
+    @UseGuards(AuthGuard)
+    remove(@Param('id') id: number, @Req() req: AuthenticatedRequest) {
+        if (req.user!.id !== id) {
+            throw new ForbiddenException(
+                'You are not authorized to delete this user',
+            );
+        }
+        return this.usersService.remove(id);
     }
 }
