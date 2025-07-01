@@ -10,7 +10,6 @@ import { AuthenticatedRequest } from '../auth/auth.controller';
 
 describe('UrlController', () => {
     let controller: UrlController;
-    let urlService: UrlService;
 
     const mockUrlService = {
         create: jest.fn(),
@@ -45,7 +44,6 @@ describe('UrlController', () => {
             .compile();
 
         controller = module.get<UrlController>(UrlController);
-        urlService = module.get<UrlService>(UrlService);
     });
 
     afterEach(() => {
@@ -80,7 +78,7 @@ describe('UrlController', () => {
 
             const result = await controller.create(createUrlDto, mockRequest);
 
-            expect(urlService.create).toHaveBeenCalledWith(
+            expect(mockUrlService.create).toHaveBeenCalledWith(
                 createUrlDto,
                 mockUser.id,
             );
@@ -98,7 +96,7 @@ describe('UrlController', () => {
                 user: undefined,
             } as AuthenticatedRequest);
 
-            expect(urlService.create).toHaveBeenCalledWith(
+            expect(mockUrlService.create).toHaveBeenCalledWith(
                 createUrlDto,
                 undefined,
             );
@@ -132,7 +130,7 @@ describe('UrlController', () => {
 
             const result = await controller.findAll(mockRequest);
 
-            expect(urlService.findManyByUser).toHaveBeenCalledWith(
+            expect(mockUrlService.findManyByUser).toHaveBeenCalledWith(
                 mockUser.id,
             );
             expect(result).toEqual(expectedUrls);
@@ -140,10 +138,6 @@ describe('UrlController', () => {
     });
 
     describe('redirectAndTrackVisitByCode', () => {
-        const mockResponse = {
-            redirect: jest.fn(),
-        } as unknown as Response;
-
         it('should redirect to URL and track visit', async () => {
             const code = 'abc123';
             const mockUrl = {
@@ -153,14 +147,19 @@ describe('UrlController', () => {
                 visit_quantity: 5,
             };
 
+            const mockRedirect = jest.fn();
+            const mockResponse = {
+                redirect: mockRedirect,
+            } as unknown as Response;
+
             mockUrlService.findAndTrackVisitByCode.mockResolvedValue(mockUrl);
 
             await controller.redirectAndTrackVisitByCode(code, mockResponse);
 
-            expect(urlService.findAndTrackVisitByCode).toHaveBeenCalledWith(
+            expect(mockUrlService.findAndTrackVisitByCode).toHaveBeenCalledWith(
                 code,
             );
-            expect(mockResponse.redirect).toHaveBeenCalledWith(mockUrl.url);
+            expect(mockRedirect).toHaveBeenCalledWith(mockUrl.url);
         });
     });
 
@@ -185,9 +184,13 @@ describe('UrlController', () => {
 
             mockUrlService.update.mockResolvedValue(expectedResult);
 
-            const result = await controller.update(urlId, updateUrlDto, mockRequest);
+            const result = await controller.update(
+                urlId,
+                updateUrlDto,
+                mockRequest,
+            );
 
-            expect(urlService.update).toHaveBeenCalledWith(
+            expect(mockUrlService.update).toHaveBeenCalledWith(
                 urlId,
                 updateUrlDto,
                 mockUser.id,
@@ -215,7 +218,7 @@ describe('UrlController', () => {
 
             const result = await controller.remove(urlId, mockRequest);
 
-            expect(urlService.remove).toHaveBeenCalledWith(
+            expect(mockUrlService.remove).toHaveBeenCalledWith(
                 urlId,
                 mockUser.id,
             );

@@ -9,7 +9,7 @@ import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Urls } from './entities/urls.entity';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { randomBytes } from 'crypto';
 
 @Injectable()
@@ -21,7 +21,10 @@ export class UrlService {
         private urlRepository: Repository<Urls>,
     ) {}
 
-    async create(createUrlDto: CreateUrlDto, userId?: number) {
+    async create(
+        createUrlDto: CreateUrlDto,
+        userId?: number,
+    ): Promise<{ shortUrl: string }> {
         try {
             const code = randomBytes(3).toString('hex');
             const url = this.urlRepository.create({
@@ -41,7 +44,7 @@ export class UrlService {
         }
     }
 
-    async findManyByUser(userId: number) {
+    async findManyByUser(userId: number): Promise<Urls[]> {
         try {
             return await this.urlRepository.find({
                 where: { user: { id: userId } },
@@ -59,7 +62,7 @@ export class UrlService {
         }
     }
 
-    async findAll() {
+    async findAll(): Promise<Urls[]> {
         try {
             return await this.urlRepository.find();
         } catch (error) {
@@ -70,7 +73,7 @@ export class UrlService {
         }
     }
 
-    async findAndTrackVisitByCode(code: string) {
+    async findAndTrackVisitByCode(code: string): Promise<Urls> {
         try {
             const url = await this.urlRepository.findOneBy({ code });
             if (!url) {
@@ -92,7 +95,11 @@ export class UrlService {
         }
     }
 
-    async update(id: number, updateUrlDto: UpdateUrlDto, userId: number) {
+    async update(
+        id: number,
+        updateUrlDto: UpdateUrlDto,
+        userId: number,
+    ): Promise<UpdateResult> {
         const url = await this.urlRepository.findOneBy({ id });
         if (!url) {
             throw new NotFoundException('URL not found');
@@ -114,7 +121,7 @@ export class UrlService {
         }
     }
 
-    async remove(id: number, userId: number) {
+    async remove(id: number, userId: number): Promise<DeleteResult> {
         const url = await this.urlRepository.findOneBy({ id });
         if (!url) {
             throw new NotFoundException('URL not found');

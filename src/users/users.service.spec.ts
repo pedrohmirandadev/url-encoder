@@ -1,15 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UsersService } from './users.service';
 import { Users } from './entities/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundException, ConflictException, InternalServerErrorException } from '@nestjs/common';
+import {
+    NotFoundException,
+    ConflictException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 
 describe('UsersService', () => {
     let service: UsersService;
-    let repository: Repository<Users>;
 
     const mockRepository = {
         create: jest.fn(),
@@ -49,7 +51,6 @@ describe('UsersService', () => {
         }).compile();
 
         service = module.get<UsersService>(UsersService);
-        repository = module.get<Repository<Users>>(getRepositoryToken(Users));
 
         jest.clearAllMocks();
     });
@@ -67,18 +68,24 @@ describe('UsersService', () => {
 
             const result = await service.create(createUserDto);
 
-            expect(repository.findOneBy).toHaveBeenCalledWith({ email: createUserDto.email });
-            expect(repository.create).toHaveBeenCalledWith(createUserDto);
-            expect(repository.save).toHaveBeenCalledWith(createdUser);
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+                email: createUserDto.email,
+            });
+            expect(mockRepository.create).toHaveBeenCalledWith(createUserDto);
+            expect(mockRepository.save).toHaveBeenCalledWith(createdUser);
             expect(result).toEqual(createdUser);
         });
 
         it('should throw ConflictException when user with email already exists', async () => {
             mockRepository.findOneBy.mockResolvedValue(mockUser);
 
-            await expect(service.create(createUserDto)).rejects.toThrow(ConflictException);
-            expect(repository.findOneBy).toHaveBeenCalledWith({ email: createUserDto.email });
-            expect(repository.create).not.toHaveBeenCalled();
+            await expect(service.create(createUserDto)).rejects.toThrow(
+                ConflictException,
+            );
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+                email: createUserDto.email,
+            });
+            expect(mockRepository.create).not.toHaveBeenCalled();
         });
 
         it('should throw InternalServerErrorException when database error occurs', async () => {
@@ -86,7 +93,9 @@ describe('UsersService', () => {
             mockRepository.create.mockReturnValue(mockUser);
             mockRepository.save.mockRejectedValue(new Error('Database error'));
 
-            await expect(service.create(createUserDto)).rejects.toThrow(InternalServerErrorException);
+            await expect(service.create(createUserDto)).rejects.toThrow(
+                InternalServerErrorException,
+            );
         });
     });
 
@@ -94,7 +103,7 @@ describe('UsersService', () => {
         it('should return all users without passwords', async () => {
             const users = [
                 { ...mockUser },
-                { ...mockUser, id: 2, email: 'test2@example.com'},
+                { ...mockUser, id: 2, email: 'test2@example.com' },
             ];
             mockRepository.find.mockResolvedValue(users);
 
@@ -106,7 +115,9 @@ describe('UsersService', () => {
         it('should throw InternalServerErrorException when database error occurs', async () => {
             mockRepository.find.mockRejectedValue(new Error('Database error'));
 
-            await expect(service.findAll()).rejects.toThrow(InternalServerErrorException);
+            await expect(service.findAll()).rejects.toThrow(
+                InternalServerErrorException,
+            );
         });
     });
 
@@ -116,7 +127,9 @@ describe('UsersService', () => {
 
             const result = await service.findByEmail('test@example.com');
 
-            expect(repository.findOneBy).toHaveBeenCalledWith({ email: 'test@example.com' });
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+                email: 'test@example.com',
+            });
             expect(result).toEqual(mockUser);
         });
 
@@ -125,14 +138,20 @@ describe('UsersService', () => {
 
             const result = await service.findByEmail('nonexistent@example.com');
 
-            expect(repository.findOneBy).toHaveBeenCalledWith({ email: 'nonexistent@example.com' });
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+                email: 'nonexistent@example.com',
+            });
             expect(result).toBeNull();
         });
 
         it('should throw InternalServerErrorException when database error occurs', async () => {
-            mockRepository.findOneBy.mockRejectedValue(new Error('Database error'));
+            mockRepository.findOneBy.mockRejectedValue(
+                new Error('Database error'),
+            );
 
-            await expect(service.findByEmail('test@example.com')).rejects.toThrow(InternalServerErrorException);
+            await expect(
+                service.findByEmail('test@example.com'),
+            ).rejects.toThrow(InternalServerErrorException);
         });
     });
 
@@ -142,21 +161,27 @@ describe('UsersService', () => {
 
             const result = await service.findById(1);
 
-            expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
             expect(result).toEqual(mockUser);
         });
 
         it('should throw NotFoundException when user not found by id', async () => {
             mockRepository.findOneBy.mockResolvedValue(null);
 
-            await expect(service.findById(999)).rejects.toThrow(NotFoundException);
-            expect(repository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+            await expect(service.findById(999)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
         });
 
         it('should throw InternalServerErrorException when database error occurs', async () => {
-            mockRepository.findOneBy.mockRejectedValue(new Error('Database error'));
+            mockRepository.findOneBy.mockRejectedValue(
+                new Error('Database error'),
+            );
 
-            await expect(service.findById(1)).rejects.toThrow(InternalServerErrorException);
+            await expect(service.findById(1)).rejects.toThrow(
+                InternalServerErrorException,
+            );
         });
     });
 
@@ -169,37 +194,41 @@ describe('UsersService', () => {
         it('should update user successfully', async () => {
             const updatedUser = { ...mockUser, ...updateUserDto };
             mockRepository.findOneBy
-                .mockResolvedValueOnce(mockUser) // First call for finding user
-                .mockResolvedValueOnce(null); // Second call for checking email uniqueness
+                .mockResolvedValueOnce(mockUser)
+                .mockResolvedValueOnce(null);
             mockRepository.save.mockResolvedValue(updatedUser);
 
             const result = await service.update(1, updateUserDto);
 
-            expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
-            expect(repository.save).toHaveBeenCalledWith(updatedUser);
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+            expect(mockRepository.save).toHaveBeenCalledWith(updatedUser);
             expect(result).toEqual(updatedUser);
         });
 
         it('should throw NotFoundException when user not found', async () => {
             mockRepository.findOneBy.mockResolvedValue(null);
 
-            await expect(service.update(999, updateUserDto)).rejects.toThrow(NotFoundException);
-            expect(repository.findOneBy).toHaveBeenCalledWith({ id: 999 });
-            expect(repository.save).not.toHaveBeenCalled();
+            await expect(service.update(999, updateUserDto)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(mockRepository.findOneBy).toHaveBeenCalledWith({ id: 999 });
+            expect(mockRepository.save).not.toHaveBeenCalled();
         });
 
         it('should not check email uniqueness when email is not being updated', async () => {
-            const updateDtoWithoutEmail: UpdateUserDto = { name: 'Updated User' };
+            const updateDtoWithoutEmail: UpdateUserDto = {
+                name: 'Updated User',
+            };
             const updatedUser = { ...mockUser, name: 'Updated User' };
-            
+
             jest.clearAllMocks();
             mockRepository.findOneBy.mockResolvedValue(mockUser);
             mockRepository.save.mockResolvedValue(updatedUser);
 
             const result = await service.update(1, updateDtoWithoutEmail);
 
-            expect(repository.findOneBy).toHaveBeenCalledTimes(1);
-            expect(repository.save).toHaveBeenCalledWith(updatedUser);
+            expect(mockRepository.findOneBy).toHaveBeenCalledTimes(1);
+            expect(mockRepository.save).toHaveBeenCalledWith(updatedUser);
             expect(result).toEqual(updatedUser);
         });
 
@@ -207,7 +236,9 @@ describe('UsersService', () => {
             mockRepository.findOneBy.mockResolvedValue(mockUser);
             mockRepository.save.mockRejectedValue(new Error('Database error'));
 
-            await expect(service.update(1, updateUserDto)).rejects.toThrow(InternalServerErrorException);
+            await expect(service.update(1, updateUserDto)).rejects.toThrow(
+                InternalServerErrorException,
+            );
         });
     });
 
@@ -217,20 +248,26 @@ describe('UsersService', () => {
 
             await service.remove(1);
 
-            expect(repository.softDelete).toHaveBeenCalledWith(1);
+            expect(mockRepository.softDelete).toHaveBeenCalledWith(1);
         });
 
         it('should throw NotFoundException when user not found for deletion', async () => {
             mockRepository.softDelete.mockResolvedValue({ affected: 0 });
 
-            await expect(service.remove(999)).rejects.toThrow(NotFoundException);
-            expect(repository.softDelete).toHaveBeenCalledWith(999);
+            await expect(service.remove(999)).rejects.toThrow(
+                NotFoundException,
+            );
+            expect(mockRepository.softDelete).toHaveBeenCalledWith(999);
         });
 
         it('should throw InternalServerErrorException when database error occurs', async () => {
-            mockRepository.softDelete.mockRejectedValue(new Error('Database error'));
+            mockRepository.softDelete.mockRejectedValue(
+                new Error('Database error'),
+            );
 
-            await expect(service.remove(1)).rejects.toThrow(InternalServerErrorException);
+            await expect(service.remove(1)).rejects.toThrow(
+                InternalServerErrorException,
+            );
         });
     });
 });

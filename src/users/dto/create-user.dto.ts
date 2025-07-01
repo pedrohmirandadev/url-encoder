@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsEmail, IsString, MinLength } from '@nestjs/class-validator';
+import {
+    IsNotEmpty,
+    IsEmail,
+    IsString,
+    MinLength,
+} from '@nestjs/class-validator';
 import { IsStrongPassword } from 'class-validator';
 
 export class CreateUserDto {

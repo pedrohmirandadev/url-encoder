@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UrlService } from './urls.service';
 import { Urls } from './entities/urls.entity';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
-import { 
-    InternalServerErrorException, 
-    NotFoundException, 
-    ForbiddenException 
+import {
+    InternalServerErrorException,
+    NotFoundException,
+    ForbiddenException,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
+import { Users } from 'src/users/entities/users.entity';
 
 jest.mock('crypto', () => ({
     randomBytes: jest.fn(),
@@ -18,7 +18,6 @@ jest.mock('crypto', () => ({
 
 describe('UrlService', () => {
     let service: UrlService;
-    let urlRepository: Repository<Urls>;
 
     const mockUrlRepository = {
         create: jest.fn(),
@@ -34,10 +33,10 @@ describe('UrlService', () => {
         url: 'https://example.com',
         code: 'abc123',
         visit_quantity: 0,
-        user: { id: 1 } as any,
+        user: { id: 1 } as Users,
         created_at: new Date(),
         updated_at: new Date(),
-        deleted_at: null as any,
+        deleted_at: null,
     };
 
     beforeEach(async () => {
@@ -52,8 +51,7 @@ describe('UrlService', () => {
         }).compile();
 
         service = module.get<UrlService>(UrlService);
-        urlRepository = module.get<Repository<Urls>>(getRepositoryToken(Urls));
-        
+
         (randomBytes as jest.Mock).mockReturnValue({
             toString: jest.fn().mockReturnValue('abc123'),
         });
@@ -80,7 +78,7 @@ describe('UrlService', () => {
 
             expect(mockUrlRepository.create).toHaveBeenCalledWith({
                 ...createUrlDto,
-                code: expect.any(String),
+                code: 'abc123',
                 user: { id: 1 },
             });
             expect(mockUrlRepository.save).toHaveBeenCalledWith(mockCreatedUrl);
@@ -98,7 +96,7 @@ describe('UrlService', () => {
 
             expect(mockUrlRepository.create).toHaveBeenCalledWith({
                 ...createUrlDto,
-                code: expect.any(String),
+                code: 'abc123',
                 user: { id: undefined },
             });
             expect(result).toBeDefined();
@@ -106,7 +104,9 @@ describe('UrlService', () => {
 
         it('should throw InternalServerErrorException when save fails', async () => {
             mockUrlRepository.create.mockReturnValue(mockUrl);
-            mockUrlRepository.save.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.save.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(service.create(createUrlDto, 1)).rejects.toThrow(
                 InternalServerErrorException,
@@ -128,7 +128,9 @@ describe('UrlService', () => {
         });
 
         it('should throw InternalServerErrorException when find fails', async () => {
-            mockUrlRepository.find.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.find.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(service.findManyByUser(1)).rejects.toThrow(
                 InternalServerErrorException,
@@ -148,7 +150,9 @@ describe('UrlService', () => {
         });
 
         it('should throw InternalServerErrorException when find fails', async () => {
-            mockUrlRepository.find.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.find.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(service.findAll()).rejects.toThrow(
                 InternalServerErrorException,
@@ -184,7 +188,9 @@ describe('UrlService', () => {
 
         it('should throw InternalServerErrorException when save fails', async () => {
             mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
-            mockUrlRepository.save.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.save.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(
                 service.findAndTrackVisitByCode('abc123'),
@@ -204,7 +210,10 @@ describe('UrlService', () => {
             const result = await service.update(1, updateUrlDto, 1);
 
             expect(mockUrlRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
-            expect(mockUrlRepository.update).toHaveBeenCalledWith(1, updateUrlDto);
+            expect(mockUrlRepository.update).toHaveBeenCalledWith(
+                1,
+                updateUrlDto,
+            );
             expect(result).toEqual({ affected: 1 });
         });
 
@@ -226,7 +235,9 @@ describe('UrlService', () => {
 
         it('should throw InternalServerErrorException when update fails', async () => {
             mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
-            mockUrlRepository.update.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.update.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(service.update(1, updateUrlDto, 1)).rejects.toThrow(
                 InternalServerErrorException,
@@ -264,7 +275,9 @@ describe('UrlService', () => {
 
         it('should throw InternalServerErrorException when soft delete fails', async () => {
             mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
-            mockUrlRepository.softDelete.mockRejectedValue(new Error('Database error'));
+            mockUrlRepository.softDelete.mockRejectedValue(
+                new Error('Database error'),
+            );
 
             await expect(service.remove(1, 1)).rejects.toThrow(
                 InternalServerErrorException,

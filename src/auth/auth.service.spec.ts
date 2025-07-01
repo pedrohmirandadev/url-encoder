@@ -9,8 +9,6 @@ jest.mock('bcrypt');
 
 describe('AuthService', () => {
     let service: AuthService;
-    let usersService: UsersService;
-    let jwtService: JwtService;
 
     const mockUser = {
         id: 1,
@@ -48,8 +46,6 @@ describe('AuthService', () => {
         }).compile();
 
         service = module.get<AuthService>(AuthService);
-        usersService = module.get<UsersService>(UsersService);
-        jwtService = module.get<JwtService>(JwtService);
 
         jest.clearAllMocks();
     });
@@ -82,8 +78,13 @@ describe('AuthService', () => {
             const result = await service.signIn(email, password);
 
             expect(mockUsersService.findByEmail).toHaveBeenCalledWith(email);
-            expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
-            expect(mockJwtService.signAsync).toHaveBeenCalledWith(expectedPayload);
+            expect(bcrypt.compare).toHaveBeenCalledWith(
+                password,
+                hashedPassword,
+            );
+            expect(mockJwtService.signAsync).toHaveBeenCalledWith(
+                expectedPayload,
+            );
             expect(result).toEqual({
                 access_token: expectedToken,
             });
@@ -101,7 +102,10 @@ describe('AuthService', () => {
             );
 
             expect(mockUsersService.findByEmail).toHaveBeenCalledWith(email);
-            expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+            expect(bcrypt.compare).toHaveBeenCalledWith(
+                password,
+                hashedPassword,
+            );
             expect(mockJwtService.signAsync).not.toHaveBeenCalled();
         });
 
@@ -110,10 +114,15 @@ describe('AuthService', () => {
             mockUsersService.findByEmail.mockResolvedValue(mockUser);
             (bcrypt.compare as jest.Mock).mockRejectedValue(bcryptError);
 
-            await expect(service.signIn(email, password)).rejects.toThrow(bcryptError);
+            await expect(service.signIn(email, password)).rejects.toThrow(
+                bcryptError,
+            );
 
             expect(mockUsersService.findByEmail).toHaveBeenCalledWith(email);
-            expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+            expect(bcrypt.compare).toHaveBeenCalledWith(
+                password,
+                hashedPassword,
+            );
             expect(mockJwtService.signAsync).not.toHaveBeenCalled();
         });
 
@@ -123,10 +132,15 @@ describe('AuthService', () => {
             (bcrypt.compare as jest.Mock).mockResolvedValue(true);
             mockJwtService.signAsync.mockRejectedValue(jwtError);
 
-            await expect(service.signIn(email, password)).rejects.toThrow(jwtError);
+            await expect(service.signIn(email, password)).rejects.toThrow(
+                jwtError,
+            );
 
             expect(mockUsersService.findByEmail).toHaveBeenCalledWith(email);
-            expect(bcrypt.compare).toHaveBeenCalledWith(password, hashedPassword);
+            expect(bcrypt.compare).toHaveBeenCalledWith(
+                password,
+                hashedPassword,
+            );
             expect(mockJwtService.signAsync).toHaveBeenCalledWith({
                 id: mockUser.id,
                 email: mockUser.email,
@@ -150,8 +164,13 @@ describe('AuthService', () => {
 
             const result = await service.signIn(differentUser.email, password);
 
-            expect(mockUsersService.findByEmail).toHaveBeenCalledWith(differentUser.email);
-            expect(bcrypt.compare).toHaveBeenCalledWith(password, differentUser.password);
+            expect(mockUsersService.findByEmail).toHaveBeenCalledWith(
+                differentUser.email,
+            );
+            expect(bcrypt.compare).toHaveBeenCalledWith(
+                password,
+                differentUser.password,
+            );
             expect(mockJwtService.signAsync).toHaveBeenCalledWith({
                 id: differentUser.id,
                 email: differentUser.email,
@@ -179,7 +198,9 @@ describe('AuthService', () => {
             const notFoundError = new Error('User not found');
             mockUsersService.findById.mockRejectedValue(notFoundError);
 
-            await expect(service.findByUserId(userId)).rejects.toThrow(notFoundError);
+            await expect(service.findByUserId(userId)).rejects.toThrow(
+                notFoundError,
+            );
 
             expect(mockUsersService.findById).toHaveBeenCalledWith(userId);
         });
@@ -197,7 +218,9 @@ describe('AuthService', () => {
 
             const result = await service.findByUserId(differentUserId);
 
-            expect(mockUsersService.findById).toHaveBeenCalledWith(differentUserId);
+            expect(mockUsersService.findById).toHaveBeenCalledWith(
+                differentUserId,
+            );
             expect(result).toEqual(differentUser);
         });
 
@@ -205,7 +228,9 @@ describe('AuthService', () => {
             const serviceError = new Error('Database connection error');
             mockUsersService.findById.mockRejectedValue(serviceError);
 
-            await expect(service.findByUserId(userId)).rejects.toThrow(serviceError);
+            await expect(service.findByUserId(userId)).rejects.toThrow(
+                serviceError,
+            );
 
             expect(mockUsersService.findById).toHaveBeenCalledWith(userId);
         });
@@ -249,8 +274,16 @@ describe('AuthService', () => {
             );
 
             expect(bcrypt.compare).toHaveBeenCalledTimes(2);
-            expect(bcrypt.compare).toHaveBeenNthCalledWith(1, wrongPassword, mockUser.password);
-            expect(bcrypt.compare).toHaveBeenNthCalledWith(2, wrongPassword, mockUser.password);
+            expect(bcrypt.compare).toHaveBeenNthCalledWith(
+                1,
+                wrongPassword,
+                mockUser.password,
+            );
+            expect(bcrypt.compare).toHaveBeenNthCalledWith(
+                2,
+                wrongPassword,
+                mockUser.password,
+            );
         });
     });
 });
