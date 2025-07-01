@@ -4,7 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import 'dotenv/config';
 import { AppDataSource } from './database/typeorm.config';
-import { HealthModule } from './health-checker/health.module';
+import { ObservabilityModule } from './observability/observability.module';
 import { AppService } from './app.service';
 import { UrlModule } from './urls/urls.module';
 import { AuthModule } from './auth/auth.module';
@@ -16,7 +16,7 @@ import { UsersModule } from './users/users.module';
             ...AppDataSource.options,
             autoLoadEntities: true,
         }),
-        HealthModule,
+        ObservabilityModule,
         UrlModule,
         AuthModule,
         UsersModule,
