@@ -11,4 +11,4 @@ import { MetricsController } from './metrics.controller';
     providers: [MetricsService, TracingService],
     exports: [MetricsService, TracingService],
 })
-export class ObservabilityModule { }
+export class ObservabilityModule {}

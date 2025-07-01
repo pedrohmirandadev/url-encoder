@@ -19,7 +19,7 @@ export class UrlService {
     constructor(
         @InjectRepository(Urls)
         private urlRepository: Repository<Urls>,
-    ) { }
+    ) {}
 
     async create(createUrlDto: CreateUrlDto, userId?: number) {
         try {

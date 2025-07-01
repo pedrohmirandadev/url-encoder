@@ -17,7 +17,7 @@ interface JwtPayload {
 
 @Injectable()
 export class OptionalAuthGuard implements CanActivate {
-    constructor(private jwtService: JwtService) { }
+    constructor(private jwtService: JwtService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context
