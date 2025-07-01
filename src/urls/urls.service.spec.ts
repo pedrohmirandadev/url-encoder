@@ -23,6 +23,7 @@ describe('UrlService', () => {
         create: jest.fn(),
         save: jest.fn(),
         find: jest.fn(),
+        findOne: jest.fn(),
         findOneBy: jest.fn(),
         update: jest.fn(),
         softDelete: jest.fn(),
@@ -204,12 +205,15 @@ describe('UrlService', () => {
         };
 
         it('should update URL successfully when user is authorized', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            mockUrlRepository.findOne.mockResolvedValue(mockUrl);
             mockUrlRepository.update.mockResolvedValue({ affected: 1 });
 
             const result = await service.update(1, updateUrlDto, 1);
 
-            expect(mockUrlRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+            expect(mockUrlRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 1 },
+                relations: ['user'],
+            });
             expect(mockUrlRepository.update).toHaveBeenCalledWith(
                 1,
                 updateUrlDto,
@@ -218,7 +222,7 @@ describe('UrlService', () => {
         });
 
         it('should throw NotFoundException when URL not found', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(null);
+            mockUrlRepository.findOne.mockResolvedValue(null);
 
             await expect(service.update(999, updateUrlDto, 1)).rejects.toThrow(
                 NotFoundException,
@@ -226,15 +230,16 @@ describe('UrlService', () => {
         });
 
         it('should throw ForbiddenException when user is not authorized', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            const urlWithDifferentUser = { ...mockUrl, user: { id: 2 } as Users };
+            mockUrlRepository.findOne.mockResolvedValue(urlWithDifferentUser);
 
-            await expect(service.update(1, updateUrlDto, 2)).rejects.toThrow(
+            await expect(service.update(1, updateUrlDto, 1)).rejects.toThrow(
                 ForbiddenException,
             );
         });
 
         it('should throw InternalServerErrorException when update fails', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            mockUrlRepository.findOne.mockResolvedValue(mockUrl);
             mockUrlRepository.update.mockRejectedValue(
                 new Error('Database error'),
             );
@@ -247,18 +252,21 @@ describe('UrlService', () => {
 
     describe('remove', () => {
         it('should soft delete URL successfully when user is authorized', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            mockUrlRepository.findOne.mockResolvedValue(mockUrl);
             mockUrlRepository.softDelete.mockResolvedValue({ affected: 1 });
 
             const result = await service.remove(1, 1);
 
-            expect(mockUrlRepository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+            expect(mockUrlRepository.findOne).toHaveBeenCalledWith({
+                where: { id: 1 },
+                relations: ['user'],
+            });
             expect(mockUrlRepository.softDelete).toHaveBeenCalledWith(1);
             expect(result).toEqual({ affected: 1 });
         });
 
         it('should throw NotFoundException when URL not found', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(null);
+            mockUrlRepository.findOne.mockResolvedValue(null);
 
             await expect(service.remove(999, 1)).rejects.toThrow(
                 NotFoundException,
@@ -266,15 +274,16 @@ describe('UrlService', () => {
         });
 
         it('should throw ForbiddenException when user is not authorized', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            const urlWithDifferentUser = { ...mockUrl, user: { id: 2 } as Users };
+            mockUrlRepository.findOne.mockResolvedValue(urlWithDifferentUser);
 
-            await expect(service.remove(1, 2)).rejects.toThrow(
+            await expect(service.remove(1, 1)).rejects.toThrow(
                 ForbiddenException,
             );
         });
 
         it('should throw InternalServerErrorException when soft delete fails', async () => {
-            mockUrlRepository.findOneBy.mockResolvedValue(mockUrl);
+            mockUrlRepository.findOne.mockResolvedValue(mockUrl);
             mockUrlRepository.softDelete.mockRejectedValue(
                 new Error('Database error'),
             );
