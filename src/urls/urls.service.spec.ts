@@ -230,7 +230,10 @@ describe('UrlService', () => {
         });
 
         it('should throw ForbiddenException when user is not authorized', async () => {
-            const urlWithDifferentUser = { ...mockUrl, user: { id: 2 } as Users };
+            const urlWithDifferentUser = {
+                ...mockUrl,
+                user: { id: 2 } as Users,
+            };
             mockUrlRepository.findOne.mockResolvedValue(urlWithDifferentUser);
 
             await expect(service.update(1, updateUrlDto, 1)).rejects.toThrow(
@@ -274,7 +277,10 @@ describe('UrlService', () => {
         });
 
         it('should throw ForbiddenException when user is not authorized', async () => {
-            const urlWithDifferentUser = { ...mockUrl, user: { id: 2 } as Users };
+            const urlWithDifferentUser = {
+                ...mockUrl,
+                user: { id: 2 } as Users,
+            };
             mockUrlRepository.findOne.mockResolvedValue(urlWithDifferentUser);
 
             await expect(service.remove(1, 1)).rejects.toThrow(
