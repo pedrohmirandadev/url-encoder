@@ -31,7 +31,7 @@ export class UsersController {
         @Body() updateUserDto: UpdateUserDto,
         @Req() req: AuthenticatedRequest,
     ) {
-        if (req.user!.id !== id) {
+        if (req.user!.id !== Number(id)) {
             throw new ForbiddenException(
                 'You are not authorized to update this user',
             );
@@ -42,7 +42,7 @@ export class UsersController {
     @Delete(':id')
     @UseGuards(AuthGuard)
     remove(@Param('id') id: number, @Req() req: AuthenticatedRequest) {
-        if (req.user!.id !== id) {
+        if (req.user!.id !== Number(id)) {
             throw new ForbiddenException(
                 'You are not authorized to delete this user',
             );
