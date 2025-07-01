@@ -100,7 +100,10 @@ export class UrlService {
         updateUrlDto: UpdateUrlDto,
         userId: number,
     ): Promise<UpdateResult> {
-        const url = await this.urlRepository.findOneBy({ id });
+        const url = await this.urlRepository.findOne({
+            where: { id },
+            relations: ['user'],
+        });
         if (!url) {
             throw new NotFoundException('URL not found');
         }
@@ -122,7 +125,11 @@ export class UrlService {
     }
 
     async remove(id: number, userId: number): Promise<DeleteResult> {
-        const url = await this.urlRepository.findOneBy({ id });
+        const url = await this.urlRepository.findOne({
+            where: { id },
+            relations: ['user'],
+        });
+        
         if (!url) {
             throw new NotFoundException('URL not found');
         }
