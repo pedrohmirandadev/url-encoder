@@ -10,4 +10,4 @@ import { Urls } from './entities/urls.entity';
     providers: [UrlService],
     exports: [UrlService],
 })
-export class UrlModule { }
+export class UrlModule {}

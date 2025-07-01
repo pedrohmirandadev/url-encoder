@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Users } from './entities/users.entity';
-import { CreateUserDto } from './dto/create-user-dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class UsersService {
     constructor(
         @InjectRepository(Users)
         private userRepository: Repository<Users>,
-    ) { }
+    ) {}
 
     async create(createUserDto: CreateUserDto): Promise<Users> {
         try {
@@ -26,8 +26,8 @@ export class UsersService {
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error('Erro ao criar usuário', message);
-            throw new InternalServerErrorException('Erro ao criar o usuário');
+            this.logger.error('Error creating user', message);
+            throw new InternalServerErrorException('Failed to create user');
         }
     }
 
@@ -37,10 +37,8 @@ export class UsersService {
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error('Erro ao buscar usuários', message);
-            throw new InternalServerErrorException(
-                'Erro ao buscar os usuários',
-            );
+            this.logger.error('Error fetching users', message);
+            throw new InternalServerErrorException('Failed to fetch users');
         }
     }
 
@@ -51,11 +49,11 @@ export class UsersService {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
             this.logger.error(
-                `Erro ao buscar usuário com email: ${email}`,
+                `Error fetching user with email: ${email}`,
                 message,
             );
             throw new InternalServerErrorException(
-                'Erro ao buscar o usuário pelo e-mail',
+                'Failed to fetch user by email',
             );
         }
     }
@@ -64,16 +62,16 @@ export class UsersService {
         try {
             const user = await this.userRepository.findOneBy({ id });
             if (!user) {
-                throw new NotFoundException('Usuário não encontrado');
+                throw new NotFoundException('User not found');
             }
             return user;
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
+
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-
-            this.logger.error(`Erro ao buscar usuário com ID: ${id}`, message);
-            throw new InternalServerErrorException('Erro ao buscar o usuário');
+            this.logger.error(`Error fetching user with ID: ${id}`, message);
+            throw new InternalServerErrorException('Failed to fetch user');
         }
     }
 
@@ -81,23 +79,18 @@ export class UsersService {
         try {
             const user = await this.userRepository.findOneBy({ id });
             if (!user) {
-                throw new NotFoundException('Usuário não encontrado');
+                throw new NotFoundException('User not found');
             }
 
             Object.assign(user, updateUserDto);
             return await this.userRepository.save(user);
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
+
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-
-            this.logger.error(
-                `Erro ao atualizar usuário com ID: ${id}`,
-                message,
-            );
-            throw new InternalServerErrorException(
-                'Erro ao atualizar o usuário',
-            );
+            this.logger.error(`Error updating user with ID: ${id}`, message);
+            throw new InternalServerErrorException('Failed to update user');
         }
     }
 
@@ -105,17 +98,15 @@ export class UsersService {
         try {
             const result = await this.userRepository.softDelete(id);
             if (result.affected === 0) {
-                throw new NotFoundException(
-                    'Usuário não encontrado para remoção',
-                );
+                throw new NotFoundException('User not found for deletion');
             }
         } catch (error) {
             if (error instanceof NotFoundException) throw error;
 
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error(`Erro ao remover usuário com ID: ${id}`, message);
-            throw new InternalServerErrorException('Erro ao remover o usuário');
+            this.logger.error(`Error deleting user with ID: ${id}`, message);
+            throw new InternalServerErrorException('Failed to delete user');
         }
     }
 }

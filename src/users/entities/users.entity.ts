@@ -1,4 +1,4 @@
-import { Urls } from 'src/urls/entities/urls.entity';
+import { Urls } from '../../urls/entities/urls.entity';
 import {
     BeforeInsert,
     BeforeUpdate,

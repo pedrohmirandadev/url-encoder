@@ -3,6 +3,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
     Logger,
+    ForbiddenException,
 } from '@nestjs/common';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
@@ -18,15 +19,15 @@ export class UrlService {
     constructor(
         @InjectRepository(Urls)
         private urlRepository: Repository<Urls>,
-    ) { }
+    ) {}
 
-    async create(createUrlDto: CreateUrlDto, user_id?: number) {
+    async create(createUrlDto: CreateUrlDto, userId?: number) {
         try {
             const code = randomBytes(3).toString('hex');
             const url = this.urlRepository.create({
                 ...createUrlDto,
                 code,
-                user: { id: user_id },
+                user: { id: userId },
             });
             await this.urlRepository.save(url);
             return {
@@ -35,25 +36,25 @@ export class UrlService {
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error('Erro ao criar URL', message);
-            throw new InternalServerErrorException('Erro ao criar URL');
+            this.logger.error('Error creating URL', message);
+            throw new InternalServerErrorException('Failed to create URL');
         }
     }
 
-    async findManyByUser(user_id: number) {
+    async findManyByUser(userId: number) {
         try {
             return await this.urlRepository.find({
-                where: { user: { id: user_id } },
+                where: { user: { id: userId } },
             });
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
             this.logger.error(
-                `Erro ao buscar URLs do usuário ${user_id}`,
+                `Error retrieving URLs for user ${userId}`,
                 message,
             );
             throw new InternalServerErrorException(
-                'Erro ao buscar URLs do usuário',
+                'Failed to retrieve user URLs',
             );
         }
     }
@@ -64,16 +65,16 @@ export class UrlService {
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error('Erro ao buscar todas as URLs', message);
-            throw new InternalServerErrorException('Erro ao buscar URLs');
+            this.logger.error('Error retrieving all URLs', message);
+            throw new InternalServerErrorException('Failed to retrieve URLs');
         }
     }
 
-    async findByCode(code: string) {
+    async findAndTrackVisitByCode(code: string) {
         try {
             const url = await this.urlRepository.findOneBy({ code });
             if (!url) {
-                throw new NotFoundException('URL não encontrada');
+                throw new NotFoundException('URL not found');
             }
 
             url.visit_quantity++;
@@ -83,45 +84,55 @@ export class UrlService {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
             this.logger.error(
-                `Erro ao buscar ou atualizar URL com código ${code}`,
+                `Error retrieving or updating URL with code ${code}`,
                 message,
             );
             if (error instanceof NotFoundException) throw error;
-            throw new InternalServerErrorException('Erro ao buscar a URL');
+            throw new InternalServerErrorException('Failed to retrieve URL');
         }
     }
 
-    async update(id: number, updateUrlDto: UpdateUrlDto) {
+    async update(id: number, updateUrlDto: UpdateUrlDto, userId: number) {
+        const url = await this.urlRepository.findOneBy({ id });
+        if (!url) {
+            throw new NotFoundException('URL not found');
+        }
+
+        if (url.user?.id !== userId) {
+            throw new ForbiddenException(
+                'You are not authorized to update this URL',
+            );
+        }
+
         try {
-            const result = await this.urlRepository.update(id, updateUrlDto);
-            if (result.affected === 0) {
-                throw new NotFoundException(
-                    'URL não encontrada para atualização',
-                );
-            }
-            return result;
+            return await this.urlRepository.update(id, updateUrlDto);
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error(`Erro ao atualizar URL com ID ${id}`, message);
-            if (error instanceof NotFoundException) throw error;
-            throw new InternalServerErrorException('Erro ao atualizar URL');
+            this.logger.error(`Error updating URL with ID ${id}`, message);
+            throw new InternalServerErrorException('Failed to update URL');
         }
     }
 
-    async remove(id: number) {
+    async remove(id: number, userId: number) {
+        const url = await this.urlRepository.findOneBy({ id });
+        if (!url) {
+            throw new NotFoundException('URL not found');
+        }
+
+        if (url.user?.id !== userId) {
+            throw new ForbiddenException(
+                'You are not authorized to delete this URL',
+            );
+        }
+
         try {
-            const result = await this.urlRepository.softDelete(id);
-            if (result.affected === 0) {
-                throw new NotFoundException('URL não encontrada para exclusão');
-            }
-            return result;
+            return await this.urlRepository.softDelete(id);
         } catch (error) {
             const message =
                 error instanceof Error ? error.stack : JSON.stringify(error);
-            this.logger.error(`Erro ao remover URL com ID ${id}`, message);
-            if (error instanceof NotFoundException) throw error;
-            throw new InternalServerErrorException('Erro ao remover URL');
+            this.logger.error(`Error deleting URL with ID ${id}`, message);
+            throw new InternalServerErrorException('Failed to delete URL');
         }
     }
 }

@@ -7,7 +7,6 @@ import {
     Param,
     Delete,
     Res,
-    NotFoundException,
     UseGuards,
     Req,
 } from '@nestjs/common';
@@ -15,18 +14,19 @@ import { Response } from 'express';
 import { UrlService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { OptionalAuthGuard } from 'src/auth/auth.guard.optional';
+import { AuthGuard } from '../auth/auth.guard';
+import { OptionalAuthGuard } from '../auth/auth.guard.optional';
+import { AuthenticatedRequest } from '../auth/auth.controller';
 
 @Controller()
 export class UrlController {
-    constructor(private readonly urlService: UrlService) { }
+    constructor(private readonly urlService: UrlService) {}
 
     @Post('urls')
     @UseGuards(OptionalAuthGuard)
     create(
         @Body() createUrlDto: CreateUrlDto,
-        @Req() req: Request & { user?: { id: number } },
+        @Req() req: AuthenticatedRequest,
     ) {
         return this.urlService.create(
             createUrlDto,
@@ -34,28 +34,34 @@ export class UrlController {
         );
     }
 
-    @UseGuards(AuthGuard)
     @Get('urls')
-    findAll(@Req() req: Request & { user?: { id: number } }) {
+    @UseGuards(AuthGuard)
+    findAll(@Req() req: AuthenticatedRequest) {
         return this.urlService.findManyByUser(req.user!.id);
     }
 
     @Get(':code')
-    async redirect(@Param('code') code: string, @Res() res: Response) {
-        const url = await this.urlService.findByCode(code);
-        if (!url) throw new NotFoundException('URL not found');
+    async redirectAndTrackVisitByCode(
+        @Param('code') code: string,
+        @Res() res: Response,
+    ) {
+        const url = await this.urlService.findAndTrackVisitByCode(code);
         return res.redirect(url.url);
     }
 
-    @UseGuards(AuthGuard)
     @Patch('urls/:id')
-    update(@Param('id') id: string, @Body() updateUrlDto: UpdateUrlDto) {
-        return this.urlService.update(+id, updateUrlDto);
+    @UseGuards(AuthGuard)
+    update(
+        @Param('id') id: number,
+        @Body() updateUrlDto: UpdateUrlDto,
+        @Req() req: AuthenticatedRequest,
+    ) {
+        return this.urlService.update(id, updateUrlDto, req.user!.id);
     }
 
-    @UseGuards(AuthGuard)
     @Delete('urls/:id')
-    remove(@Param('id') id: string) {
-        return this.urlService.remove(+id);
+    @UseGuards(AuthGuard)
+    remove(@Param('id') id: number, @Req() req: AuthenticatedRequest) {
+        return this.urlService.remove(id, req.user!.id);
     }
 }

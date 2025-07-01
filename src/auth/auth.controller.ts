@@ -10,14 +10,15 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { Request } from 'express';
 
-interface AuthenticatedRequest extends Request {
-    user?: { id: string; email: string };
+export interface AuthenticatedRequest extends Request {
+    user?: { id: number; email: string; name: string };
 }
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     @HttpCode(HttpStatus.OK)
     @Post('login')
@@ -25,8 +26,8 @@ export class AuthController {
         return this.authService.signIn(signInDto.email, signInDto.password);
     }
 
-    @UseGuards(AuthGuard)
     @Get('me')
+    @UseGuards(AuthGuard)
     getProfile(@Req() request: AuthenticatedRequest) {
         const userId = Number(request.user?.id);
         return this.authService.findByUserId(userId);
