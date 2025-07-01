@@ -1,0 +1,459 @@
+type: collection.insomnia.rest/5.0
+name: Url Encoder
+meta:
+  id: wrk_ea36c4f9eb55420f91a52053f5b24347
+  created: 1751365756165
+  modified: 1751365756165
+  description: ""
+collection:
+  - name: Url Encoder
+    meta:
+      id: fld_37aa2fbd5c9d4918a423546dacd0f412
+      created: 1751365756171
+      modified: 1751365756171
+      sortKey: -1751365751632
+      description: ""
+    children:
+      - name: User
+        meta:
+          id: fld_cb84c3f4eed44a1d88749245ba9566f4
+          created: 1751365767205
+          modified: 1751366750970
+          sortKey: -1751365767280
+          description: ""
+        children:
+          - url: "{{ _.host }}/users"
+            name: Create user
+            meta:
+              id: req_63a4c7c4a24e4336a99120f00bb5d20e
+              created: 1751365756174
+              modified: 1751366811850
+              isPrivate: false
+              description: ""
+              sortKey: -1751365769649
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pedro Miranda",
+                  "email": "teste@gmail.com",
+                  "password": "Teste1@as"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:9000/users/3
+            name: Delete user
+            meta:
+              id: req_6de03a10f6104a05a8e0c38aaf537234
+              created: 1751365756201
+              modified: 1751370274077
+              isPrivate: false
+              description: ""
+              sortKey: -1751365769549
+            method: DELETE
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/users/1"
+            name: Update user
+            meta:
+              id: req_8325a0f8cffe4623a7b1d60c7ba9ec46
+              created: 1751365756205
+              modified: 1751366840676
+              isPrivate: false
+              description: ""
+              sortKey: -1751365769599
+            method: PUT
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pedro Miranda 2",
+                  "email": "pedrohmirandadev@gmail.com",
+                  "password": "Teste1@ass"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Auth
+        meta:
+          id: fld_390013238602445da899a03257e552d5
+          created: 1751365789279
+          modified: 1751367037056
+          sortKey: -1751365767305
+          description: ""
+        children:
+          - url: "{{ _.host }}/auth/login"
+            name: Login
+            meta:
+              id: req_fb9463afc54f49c28c72891e3cc6cd0b
+              created: 1751365756178
+              modified: 1751366339280
+              isPrivate: false
+              description: ""
+              sortKey: -1751365939120
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pedro Miranda",
+                  "email": "pedrohmirandadev@gmail.com",
+                  "password": "Teste1@ass"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/auth/me"
+            name: Get Me
+            meta:
+              id: req_e9ea7049887944efab13df002e004ed9
+              created: 1751365756210
+              modified: 1751366362456
+              isPrivate: false
+              description: ""
+              sortKey: -1751365939020
+            method: GET
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: URL
+        meta:
+          id: fld_8dc5d357b1e04606960d28ccc0b6b7ef
+          created: 1751365923170
+          modified: 1751366757928
+          sortKey: -1751365767605
+          description: ""
+        children:
+          - url: "{{ _.host }}/urls"
+            name: Encode URL
+            meta:
+              id: req_87bc048b44d94febb149a0ed8410bc55
+              created: 1751365756185
+              modified: 1751400803140
+              isPrivate: false
+              description: ""
+              sortKey: -1751365965922
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"url": "https://microsoft.com"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:9001/519407
+            name: Get Encoded
+            meta:
+              id: req_2e70292d760a4243b6f8c349e24fa6eb
+              created: 1751365756189
+              modified: 1751400813593
+              isPrivate: false
+              description: ""
+              sortKey: -1751365965822
+            method: GET
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: URL (Authenticated)
+        meta:
+          id: fld_a227ac1657a34e5d9d26ba7c9d1f0629
+          created: 1751365956005
+          modified: 1751365958360
+          sortKey: -1751365767505
+          description: ""
+        children:
+          - url: "{{ _.host }}/urls"
+            name: Get urls
+            meta:
+              id: req_43995ff1961d45929f1d893cc1f498ee
+              created: 1751365756182
+              modified: 1751367149338
+              isPrivate: false
+              description: ""
+              sortKey: -1751365989030
+            method: GET
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/urls/43"
+            name: Delete url
+            meta:
+              id: req_b5312c5f07d041ed9ccdc64512610b28
+              created: 1751365756193
+              modified: 1751400403763
+              isPrivate: false
+              description: ""
+              sortKey: -1751365988930
+            method: DELETE
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/urls/40"
+            name: Update URL
+            meta:
+              id: req_4c13bd697ebf426c8680b8f470be5865
+              created: 1751365756197
+              modified: 1751400444078
+              isPrivate: false
+              description: ""
+              sortKey: -1751365988980
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"url": "https://google.com"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/urls"
+            name: Encode URL
+            meta:
+              id: req_c684b19c8ead45f89f822ee702af2614
+              created: 1751366028994
+              modified: 1751394085877
+              isPrivate: false
+              description: ""
+              sortKey: -1751365989130
+            method: POST
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                	"url": "https://teddy360.com.br/material/marco-legal-das-garantias-sancionado-entenda-o-que-muda/"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              token: "{{ _.token }}"
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Observability
+        meta:
+          id: fld_666ad3c35bf74dcb9f1880f4b45cb4bd
+          created: 1751366003816
+          modified: 1751366749299
+          sortKey: -1751365767255
+          description: ""
+        children:
+          - url: "{{ _.host }}/api"
+            name: Swagger
+            meta:
+              id: req_34eeeaf3ee734abfa8fec4991de3a6ef
+              created: 1751365756214
+              modified: 1751366737787
+              isPrivate: false
+              description: ""
+              sortKey: -1751366736102
+            method: GET
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/metrics"
+            name: Metrics
+            meta:
+              id: req_96b97ed82c6f40c580a3b477cf14ae73
+              created: 1751365756218
+              modified: 1751366736043
+              isPrivate: false
+              description: ""
+              sortKey: -1751366736002
+            method: GET
+            scripts:
+              preRequest: ""
+              afterResponse: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.host }}/health"
+            name: Health check
+            meta:
+              id: req_da433c90283a4f0496ed83ab26f9e284
+              created: 1751400860490
+              modified: 1751400907108
+              isPrivate: false
+              description: ""
+              sortKey: -1751400860490
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.2.0
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+    scripts:
+      afterResponse: ""
+      preRequest: ""
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_02956ae99dfc24d8105fb295ce5f7646f4fe50eb
+    created: 1751365756234
+    modified: 1751365756234
+environments:
+  name: Base Environment
+  meta:
+    id: env_02956ae99dfc24d8105fb295ce5f7646f4fe50eb
+    created: 1751365756226
+    modified: 1751366092937
+    isPrivate: false
+  subEnvironments:
+    - name: Url Encoder
+      meta:
+        id: env_c77b815c46ad473daf0932414b73c6f7
+        created: 1751366118391
+        modified: 1751400511887
+        isPrivate: false
+        sortKey: 1751366118391
+      data:
+        host: http://localhost:9001
+        token: "{% response 'body', 'req_fb9463afc54f49c28c72891e3cc6cd0b',
+          'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'when-expired', 360 %}"
