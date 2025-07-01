@@ -1,0 +1,44 @@
+name: CI - Node.js 22 + Docker Compose + Lint/Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Permitir execução do wait-for-it
+        run: chmod +x ./wait-for-it.sh
+
+      - name: Subir containers com Docker Compose
+        run: docker-compose up -d --build
+
+      - name: Aguardar serviço de banco (ex: PostgreSQL) iniciar
+        run: ./wait-for-it.sh localhost:5432 --timeout=30 --strict -- echo "PostgreSQL está pronto"
+
+      - name: Rodar Lint
+        run: npm run lint
+
+      - name: Rodar Testes
+        run: npm test
+
+      - name: Derrubar containers
+        if: always()
+        run: docker-compose down --volumes
+
