@@ -7,13 +7,10 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { Request } from 'express';
-
-interface AuthenticatedRequest {
-    user?: JwtPayload;
-}
+import { AuthenticatedRequest } from './auth.controller';
 
 interface JwtPayload {
-    id: string;
+    id: number;
     name: string;
     email: string;
 }
@@ -25,7 +22,7 @@ export class OptionalAuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context
             .switchToHttp()
-            .getRequest<AuthenticatedRequest & Request>();
+            .getRequest<AuthenticatedRequest>();
         const token = this.extractTokenFromHeader(request);
         if (!token) {
             request.user = undefined;
