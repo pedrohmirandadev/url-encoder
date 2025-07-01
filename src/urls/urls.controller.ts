@@ -14,13 +14,13 @@ import { Response } from 'express';
 import { UrlService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { UpdateUrlDto } from './dto/update-url.dto';
-import { AuthGuard } from 'src/auth/auth.guard';
-import { OptionalAuthGuard } from 'src/auth/auth.guard.optional';
-import { AuthenticatedRequest } from 'src/auth/auth.controller';
+import { AuthGuard } from '../auth/auth.guard';
+import { OptionalAuthGuard } from '../auth/auth.guard.optional';
+import { AuthenticatedRequest } from '../auth/auth.controller';
 
 @Controller()
 export class UrlController {
-    constructor(private readonly urlService: UrlService) { }
+    constructor(private readonly urlService: UrlService) {}
 
     @Post('urls')
     @UseGuards(OptionalAuthGuard)
