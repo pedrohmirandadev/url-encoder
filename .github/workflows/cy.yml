@@ -27,7 +27,7 @@ jobs:
         run: chmod +x ./wait-for-it.sh
 
       - name: Start containers with Docker Compose
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait until PostgreSQL starts
         run: ./wait-for-it.sh localhost:5432 --timeout=30 --strict -- echo "PostgreSQL is ready"
@@ -40,5 +40,5 @@ jobs:
 
       - name: Stop Containers
         if: always()
-        run: docker-compose down --volumes
+        run: docker compose down --volumes
 
