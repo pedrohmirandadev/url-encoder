@@ -3,6 +3,7 @@ import {
     NotFoundException,
     InternalServerErrorException,
     Logger,
+    ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -20,6 +21,10 @@ export class UsersService {
     ) {}
 
     async create(createUserDto: CreateUserDto): Promise<Users> {
+        const existingUser = await this.findByEmail(createUserDto.email);
+        if (existingUser) {
+            throw new ConflictException('User with this email already exists');
+        }
         try {
             const user = this.userRepository.create(createUserDto);
             return await this.userRepository.save(user);
