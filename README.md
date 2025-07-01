@@ -324,3 +324,22 @@ GET /health
 
 ## 🆘 Suporte
 - **Documentação**: [Swagger UI](http://localhost:3000/api)
+
+---
+## 🚀 Possíveis melhorias
+
+- [ ] Sistema de refresh tokens
+- [ ] Rate limiting avançado
+- [ ] Cache com Redis
+- [ ] Analytics detalhados
+- [ ] API para estatísticas
+- [ ] Suporte a múltiplos domínios
+- [ ] Dashboard administrativo
+- [ ] Backup automático
+- [ ] Monitoramento avançado
+- [ ] Melhoria da arquitetura
+- [ ] Adição de kubernetes
+- [ ] Adição de terraform
+- [ ] Adição de kranked 
+- [ ] Transformar sistema em multi tenant
+---
