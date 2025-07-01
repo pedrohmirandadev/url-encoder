@@ -129,7 +129,7 @@ export class UrlService {
             where: { id },
             relations: ['user'],
         });
-        
+
         if (!url) {
             throw new NotFoundException('URL not found');
         }
