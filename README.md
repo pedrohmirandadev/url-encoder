@@ -56,7 +56,6 @@ O URL Encoder é uma aplicação backend desenvolvida em NestJS que permite:
 - Validação de dados com class-validator
 - Hash de senhas com bcrypt
 - Proteção contra ataques comuns
-- Rate limiting (configurável)
 
 ## 🛠️ Tecnologias
 
