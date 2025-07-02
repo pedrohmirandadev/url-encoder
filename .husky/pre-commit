@@ -1,0 +1,15 @@
+echo "🔍 Running pre-commit hooks..."
+
+echo "📝 Running lint-staged..."
+npx lint-staged
+
+echo "🔧 Checking TypeScript..."
+npx tsc --noEmit
+
+echo "🧪 Running unit tests..."
+npm run test -- --passWithNoTests --silent
+
+echo "🏗️ Checking build..."
+npm run build --silent
+
+echo "✅ Pre-commit hooks completed successfully!"
